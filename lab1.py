@@ -1,5 +1,5 @@
 import sys
-VERTICES = 6
+
 START = 1
 connections = [
     [0, 0, 0, 0, 0, 0],
@@ -16,7 +16,8 @@ connections[4][1] = 1
 connections[2][4] = 3
 connections[4][3] = 1
 
-def pathfinder(connections, start):
+def pathfinder(pfinderConnections, start):
+    VERTICES = len(pfinderConnections)
     visited = [False] * VERTICES
     distances = [sys.maxsize] * VERTICES
     distances[start] = 0
@@ -30,8 +31,8 @@ def pathfinder(connections, start):
         if minimal_index == sys.maxsize:
             break
         for i in range(VERTICES):
-            if connections[minimal_index][i]:
-                temp = minimal_weight + connections[minimal_index][i]
+            if pfinderConnections[minimal_index][i]:
+                temp = minimal_weight + pfinderConnections[minimal_index][i]
                 if temp < distances[i]:
                     distances[i] = temp
         visited[minimal_index] = True
@@ -44,8 +45,8 @@ def pathfinder(connections, start):
             way = f"{end} >- "
             while end != start:
                 for j in range(VERTICES):
-                    if connections[j][end]:
-                        temp = weight - connections[j][end]
+                    if pfinderConnections[j][end]:
+                        temp = weight - pfinderConnections[j][end]
                         if temp == distances[j]:
                             end = j
                             weight = temp
@@ -53,8 +54,11 @@ def pathfinder(connections, start):
             print("Шлях: ", end="")
             for j in range(len(way)-5, -1, -1):
                 print(way[j], end="")
+      
             print()
         else:
             print(f"Вага маршруту: {start} -> {i}  ...  Такого маршруту не існує")
-                
-pathfinder(connections, START)
+
+
+if __name__ == "__main__":
+    pathfinder(connections, START)

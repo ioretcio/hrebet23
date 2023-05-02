@@ -1,70 +1,81 @@
-import math
+import time
+from lab1 import pathfinder
 
+class MaxFlowAlgorithm:
+    def __init__(self,graph):
+        self.graph = graph       #defines the graph of the problem
+        self.N = len(graph)      #the number of the nodes
 
-def maxvertex(k, V, S):
-    m = 0
-    v = -1
-    for i, w in enumerate(V[k]):
-        if i in S:
-            continue
-        if w[2] == 1:
-            if m < w[0]:
-                m = w[0]
-                v = i
+        
+    def B_DFS(self,s,t,prt):
+        marked=[False]*self.N    #creating a vector to keep track of marked nodes
+        q=[]                     #creating a queue of the nodes needed to be marked
+        q.append(s)              #assigning the first member of the queue which is the source node of the graph
+        marked[s]=True           #obviously we need to mark the source node to begin, so we mark it as true (index=0)
+        prt[s]=-1                #it doesn't matter what value is determined to be the parent of the source (conventionally -1)
+        
+        while q:                 #so long as the queue of the nodes that need to be marked is not empty, the algorithm goes on
+            i=q.pop()
+            for j in range(self.N):   #for each node (i) we try other nodes to see if
+                                      # 1:that node is the child node of i with a positive capacity
+                                      # 2:the child node is not marked
+                                      # if so: 
+                                      # 1:the child will be appended to the queue
+                                      # 2:the child will be marked as traversed
+                                      # 3: the parent node of the child will be determined
+                if marked[j]==False and self.graph[i][j]>0:
+                    q.append(j)
+                    marked[j]=True
+                    prt[j]=i
+        if marked[t]:                 # if the sink node (t) of the graph is traveresed we are done
+            return True
         else:
-            if m < w[1]:
-                m = w[1]
-                v = i
-        return v
-def maxflow(T):
-    w = [x[0] for x in T]
-    return min(*w)
+            return False
+        
+    def FordFulkerson(self,s,t):
+        
+        residualgraph=self.graph
+        prt=[0]*self.N
+        maximum_flow=0
+            
+        while self.B_DFS(s,t,prt):
+            pathflow=float('inf')     # a large number is needed for the first iteration of the line 57
+            j=t                       # begin from the sink node and backtrack until you reach the source
+                
+            while not j == s:
+                i=prt[j]
+                pathflow=min(pathflow, residualgraph[i][j])     #we need to calculate the min flow of the path
+                                                                #to attaint the residual graph in each iteration
+                j=prt[j]
+            j=t        
+            while not j == s:
+                i=prt[j]
+                residualgraph[i][j] -= pathflow                   #calculating the new capacity of each edge
+                residualgraph[j][i] += pathflow
+                j=prt[j]
+                    
+            maximum_flow += pathflow
+        return maximum_flow
 
 
-def updateV(V, T, f):
-    for t in T:
-        if t[1] == -1:
-            continue
-        sgn = V[t[2]][t[1]][2]
-        V[t[1]][t[2]][0] -= f * sgn
-        V[t[1]][t[2]][1] += f * sgn
-        V[t[2]][t[1]][0] -= f * sgn
-        V[t[2]][t[1]][1] += f * sgn
-        
-        
-        
-verticles = [[[2,2,2], [10,0,1], [0,0,1], [8,0,1], [0,0,1], [0,0,1], [0,0,1]],
-    [[10,0,-1], [0,0,1], [5,0,1], [12,0,1], [10,0,1], [0,0,1], [6,0,1]],
-    [[0,0,1], [8,0,-1], [0,0,1], [0,0,1], [5,0,-1], [5,0,1], [11,0,1]],
-    [[8,0,-1], [13,0,-1], [0,0,1], [0,0,1], [4,0,1], [12,0,1], [0,0,1]],
-    [[0,0,1], [10,0,-1], [5,0,1], [4,0,-1], [0,0,1], [6,0,-1], [9,0,1]],
-    [[0,0,1], [0,0,1], [5,0,-1], [12,0,-1], [6,0,1], [0,0,1], [7,0,1]],
-    [[0,0,1], [6,0,-1], [11,0,-1], [0,0,1], [9,0,-1], [7,0,-1], [0,0,1]]]
-N = len(verticles)
-init = 0 
-end = 5
-Tinit = (math.inf, -1, init)
-f = []
-j = init
-while j != -1:
-    k = init
-    T = [Tinit]
-    S = {init}
-    while k != end:
-        j = maxvertex(k, verticles, S)
-        if j == -1:
-            if k == init:
-                break
-            else:
-                k = T.pop()[2]
-                continue
-        c = verticles[k][j][0] if verticles[k][j][2] == 1 else verticles[k][j][1]
-        T.append((c, j, k))
-        S.add(j)
-        if j == end:
-            f.append(maxflow(T))
-            updateV(verticles, T, f[-1])
-            break
-        k = j
-F = sum(f)
-print(f"Від {init} до {end} максимальний потік дорівнює: = {F}")
+graph= [[0,12,14,0,11,0,7],
+        [0,0,17,17,0,20,0],
+        [0,0,0,10,12,0, 16],
+        [0,0,0,0,9,0,11],
+        [0,0,0,0,0,12,0],
+        [0,0,15,0,0,0,9],
+        [0,0,0,0,0,0,0]]
+
+graphshape = {}
+keys = range(len(graph))
+for k in keys:
+    graphshape[k]=[]
+for u in keys:
+    for v in keys:
+        if graph[u][v]>0:
+            graphshape[u].append([v])
+    
+pathfinder(graph, 0) 
+N=len(graph)
+MFA=MaxFlowAlgorithm(graph)
+print("Максимальний потік цієї мережі дорівнює {}".format(MFA.FordFulkerson(0,6)))
