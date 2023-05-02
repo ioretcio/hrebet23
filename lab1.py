@@ -1,20 +1,14 @@
 import sys
 
-START = 1
 connections = [
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
+    [0, 2, 4, 2, 0, 0],
+    [0, 0, 0, 6, 0, 10],
+    [0, 4, 0, 0, 0, 1],
+    [0, 4, 9, 0, 6, 0],
+    [0, 0, 5, 0, 0, 1],
     [0, 0, 0, 0, 0, 0]
 ]
-connections[0][1] = 1
-connections[1][2] = 7
-connections[1][4] = 5
-connections[4][1] = 1
-connections[2][4] = 3
-connections[4][3] = 1
+
 
 def pathfinder(pfinderConnections, start):
     VERTICES = len(pfinderConnections)
@@ -61,4 +55,4 @@ def pathfinder(pfinderConnections, start):
 
 
 if __name__ == "__main__":
-    pathfinder(connections, START)
+    pathfinder(connections, 0)
